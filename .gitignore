@@ -16,3 +16,4 @@ hs_err_pid*
 build/libs/
 build/tmp/
 /build/
+javac-services.*.log*

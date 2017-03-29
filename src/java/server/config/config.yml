@@ -5,3 +5,4 @@ server:
     - type: http
       port: 8080
 
+defaultGenre: PG

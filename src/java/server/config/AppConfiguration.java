@@ -15,7 +15,7 @@ import java.util.Map;
 public class AppConfiguration extends Configuration {
 
     @NotEmpty
-    private String defaultGenre = "PG-13";
+    private String defaultGenre;  // read in from config.yml
 
     @JsonProperty
     public String getDefaultGenre() {

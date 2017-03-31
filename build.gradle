@@ -30,6 +30,9 @@ task wrapper(type: Wrapper) {
 
 dependencies {
     compile 'io.dropwizard:dropwizard-core:0.9.2'
+    compile 'io.dropwizard:dropwizard-hibernate:1.1.0'
+    // https://mvnrepository.com/artifact/com.h2database/h2
+    compile group: 'com.h2database', name: 'h2', version: '1.4.194'
 }
 
 sourceSets {

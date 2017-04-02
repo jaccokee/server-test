@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import com.codahale.metrics.annotation.Timed;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import javax.ws.rs.DELETE;
@@ -21,41 +22,54 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import server.data.model.response.MovieEntry;
+import server.db.MovieDAO;
+import server.exceptions.MovieNotFoundException;
 
-@Path("/movie")
+@Path("/api")
 @Produces(APPLICATION_JSON)
 public class MovieResource {
 	final static Logger logger = LoggerFactory.getLogger(MovieResource.class);
 
+    private final MovieDAO dao;
     private final String defaultGenre;
+    private final String defaultRating;
     private final AtomicLong counter;
-    // temporary in-memory data store
-    HashMap<Integer, MovieEntry> movies = new HashMap<>();
 
-    public MovieResource(String defaultGenre) {
+    public MovieResource(MovieDAO dao, String defaultGenre, String defaultRating) {
+        this.dao = dao;
         this.defaultGenre = defaultGenre;
+        this.defaultRating = defaultRating;
         this.counter = new AtomicLong();
+    }
+
+    @GET
+    @Path("/timeOfDay")
+    @Timed
+    public Response getTimeOfDay() {
+        Date dt = new Date();
+        String tod = String.format("%02d:%02d:%02d", dt.getHours(), dt.getMinutes(), dt.getSeconds());
+        return Response.ok().entity(tod).build();
     }
 
     @GET
     @Path("/{id}")
     @Timed
-    public MovieEntry getMovie(@PathParam("id") Optional<Integer> id) { // TODO: use Optional, or not?
-        // TODO: store mov in H2
-        MovieEntry mov = movies.get(id.get());
+    public Response getMovie(@PathParam("id") Optional<Long> id) { // TODO: use Optional, or not?
+        MovieEntry mov = dao.findMovieById(id.get());
+        if (mov == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("Entity not found for id: " + id.get()).build();
+        }
         logger.info("retrieving movie with id " + id.get() + ", movie name: " + mov.getName());
-        return mov;
+        return Response.ok(mov).build();
     }
 
     @GET
     @Path("/list")
     @Timed
-    public List<MovieEntry> getMovieList() {
-        List<MovieEntry> rtnList = new ArrayList<>();
-        for (MovieEntry mov : movies.values()) {
-            rtnList.add(mov);
-        }
-        return rtnList;
+    public Response getMovieList() {
+        List<MovieEntry> movies = dao.getMovies();
+        logger.info("retrieved movies from H2 db.  There are: " + movies.size() + " of them.");
+        return Response.ok(movies).build();
     }
 
     @POST
@@ -67,9 +81,7 @@ public class MovieResource {
                              @FormParam("rating") String rating) {
         logger.info("name passed in: " + name + ", genre passed in: " + genre);
         MovieEntry mov = new MovieEntry(counter.incrementAndGet(), name, genre, yearReleased, rating);
-        logger.info("added movie w/ id: " + counter.get());
-        // TODO: store mov in H2
-        movies.put(counter.intValue(), mov);
+        Long rtnId = dao.insert(mov.getId(), mov.getName(), mov.getGenre(), mov.getYearReleased(), mov.getRating());
         return Response.ok().build();
     }
 
@@ -77,18 +89,13 @@ public class MovieResource {
     @Path("/{id}")
     @Consumes(APPLICATION_FORM_URLENCODED)
     @Timed
-    public Response updateMovie(@PathParam("id") Integer id,
+    public Response updateMovie(@PathParam("id") Optional<Long> id,
                             @FormParam("name") String name,
                             @FormParam("genre") String genre,
                             @FormParam("yearReleased") Integer yearReleased,
                             @FormParam("rating") String rating) {
-        MovieEntry mov = movies.get(id);
-        if (mov != null) {
-            mov.setName(name);
-            mov.setGenre(genre);
-            mov.setYearReleased(yearReleased);
-            mov.setRating(rating);
-            movies.replace(id, mov);
+        Integer rtn = dao.update(id.get(), name, genre, yearReleased, rating);
+        if (rtn != null) {
             return Response.ok().build();
         } else {
             return Response.status(Response.Status.NOT_FOUND).entity("Entity not found for id: " + id).build();
@@ -98,12 +105,8 @@ public class MovieResource {
     @DELETE
     @Path("/{id}")
     @Timed
-    public void deleteMovie(@PathParam("id") Integer id) {
-        if (movies.get(id) != null) {
-            movies.remove(id);
-            // TODO: return appropriate JSON success message - Response.ok.build();
-        } else {
-            // TODO: return appropriate JSON error - Response.status(Response.Status.NOT_FOUND).entity("Entity not found for id: " + id).build();
-        }
+    public Response deleteMovie(@PathParam("id") Optional<Long> id) {
+        Integer rtn = dao.delete(id.get());
+        return Response.ok().build();
     }
 }

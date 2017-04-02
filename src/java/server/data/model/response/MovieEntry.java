@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.validator.constraints.Length;
 
 public class MovieEntry {
-    private long id;
+    private Long id;
 
     @Length(max = 128)
     private String name;
@@ -18,7 +18,7 @@ public class MovieEntry {
         // Jackson deserialization
     }
 
-    public MovieEntry(long id, String name, String genre, Integer yearReleased, String rating) {
+    public MovieEntry(Long id, String name, String genre, Integer yearReleased, String rating) {
         this.id = id;
         this.name = name;
         this.genre = genre;
@@ -29,8 +29,12 @@ public class MovieEntry {
     }
 
     @JsonProperty
-    public long getId() {
+    public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     @JsonProperty
@@ -72,4 +76,6 @@ public class MovieEntry {
     public String toString() {
         return String.format("movie: %d, %s, %s, %s, %s", id, name, genre, yearReleased, rating);
     }
+
 }
+

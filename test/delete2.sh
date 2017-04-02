@@ -1,2 +1,2 @@
 #!/bin/bash
-curl -X DELETE 'http://localhost:8080/movie/2'
+curl -X DELETE 'http://localhost:8080/api/2'

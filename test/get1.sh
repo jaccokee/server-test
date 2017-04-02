@@ -1,2 +1,2 @@
 #!/bin/bash
-curl 'http://localhost:8080/movie/1'
+curl 'http://localhost:8080/api/1'

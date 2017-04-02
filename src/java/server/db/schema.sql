@@ -1,5 +1,5 @@
 create table movie (
- id identity,
+ id long primary key,
  name varChar(64) not null,
  genre varChar(64) not null,
  year_released integer,

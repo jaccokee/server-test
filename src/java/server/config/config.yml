@@ -5,4 +5,12 @@ server:
     - type: http
       port: 8080
 
-defaultGenre: PG
+defaultGenre: Unknown
+defaultRating: Unrated
+
+database:
+  driverClass: org.h2.Driver
+  url: "jdbc:h2:mem:"
+  user: sa
+  password: sa
+

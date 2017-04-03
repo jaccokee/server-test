@@ -1,3 +1,7 @@
+# documentation
+
+http://docs.movies255.apiary.io/#
+
 # InMotion Server Test
 
 This repository is for forking as a basis of the InMotion server developer programming test.
@@ -54,3 +58,4 @@ The project comes with a gradle wrapper. On Windows, you may execute gradlew.bat
 ### Delivery
 * You can send the URL to your forked github repository. This must be a public repository that we can access.
 * Or you can send a downloaded zip of your repository. Use the "Download ZIP" button on the github repository page.
+

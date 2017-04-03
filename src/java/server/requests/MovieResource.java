@@ -57,7 +57,7 @@ public class MovieResource {
     public Response getMovie(@PathParam("id") Optional<Long> id) { // TODO: use Optional, or not?
         MovieEntry mov = dao.findMovieById(id.get());
         if (mov == null) {
-            return Response.status(Response.Status.NOT_FOUND).entity("Entity not found for id: " + id.get()).build();
+            return Response.status(Response.Status.NOT_FOUND).entity("Movie not found with id: " + id.get()).build();
         }
         return Response.ok(mov).build();
     }
@@ -71,7 +71,7 @@ public class MovieResource {
     }
 
     @POST
-    @Consumes("application/x-www-form-urlencoded")
+    @Consumes({APPLICATION_FORM_URLENCODED, APPLICATION_JSON})
     @Timed
     public Response addMovie(@FormParam("name") String name,
                              @FormParam("genre") String genre,
@@ -80,7 +80,7 @@ public class MovieResource {
         MovieEntry mov = new MovieEntry(counter.incrementAndGet(), name, genre, yearReleased, rating);
         Long rtnId = dao.insert(mov.getId(), mov.getName(), mov.getGenre(), mov.getYearReleased(), mov.getRating());
         logger.info("movie insert returned value: " + rtnId);
-        return Response.ok().build();
+        return Response.ok("Movie " + mov.getId() + " created").build();
     }
 
     @PUT
@@ -94,9 +94,9 @@ public class MovieResource {
                             @FormParam("rating") String rating) {
         Integer rtn = dao.update(id.get(), name, genre, yearReleased, rating);
         if (rtn != null) {
-            return Response.ok().build();
+            return Response.ok("Movie " + id.get() + " updated").build();
         } else {
-            return Response.status(Response.Status.NOT_FOUND).entity("Entity not found for id: " + id.get()).build();
+            return Response.status(Response.Status.NOT_FOUND).entity("Movie not found with id: " + id.get()).build();
         }
     }
 
@@ -107,9 +107,9 @@ public class MovieResource {
         Integer rtn = dao.delete(id.get());  // 1=deleted, 0=not found
         logger.info("movie delete returned value: " + rtn);
         if (rtn > 0) {
-            return Response.ok().build();
+            return Response.ok("Movie " + id.get() + " deleted").build();
         } else {
-            return Response.status(Response.Status.NOT_FOUND).entity("Entity not found for id: " + id.get()).build();
+            return Response.status(Response.Status.NOT_FOUND).entity("Movie not found with id: " + id.get()).build();
         }
     }
 }

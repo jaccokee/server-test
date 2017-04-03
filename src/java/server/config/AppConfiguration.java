@@ -18,6 +18,11 @@ public class AppConfiguration extends Configuration {
     private String defaultGenre;  // read in from config.yml
     @NotEmpty
     private String defaultRating;  // read in from config.yml
+    @Valid
+    @NotNull
+    @JsonProperty
+    private DataSourceFactory dataSourceFactory = new DataSourceFactory();
+
 
     @JsonProperty
     public String getDefaultGenre() {
@@ -34,13 +39,16 @@ public class AppConfiguration extends Configuration {
         return defaultRating;
     }
 
-    @Valid
-    @NotNull
-    @JsonProperty
-    private DataSourceFactory dataSourceFactory = new DataSourceFactory();
+    public void setDefaultRating(String rating) {
+        this.defaultRating = rating;
+    }
 
     @JsonProperty("database")
     public DataSourceFactory getDataSourceFactory() {
         return dataSourceFactory;
+    }
+
+    public void setDataSourceFactory(DataSourceFactory dsFac) {
+        this.dataSourceFactory = dsFac;
     }
 }

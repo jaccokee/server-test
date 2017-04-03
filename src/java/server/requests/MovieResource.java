@@ -59,7 +59,6 @@ public class MovieResource {
         if (mov == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("Entity not found for id: " + id.get()).build();
         }
-        logger.info("retrieving movie with id " + id.get() + ", movie name: " + mov.getName());
         return Response.ok(mov).build();
     }
 
@@ -68,7 +67,6 @@ public class MovieResource {
     @Timed
     public Response getMovieList() {
         List<MovieEntry> movies = dao.getMovies();
-        logger.info("retrieved movies from H2 db.  There are: " + movies.size() + " of them.");
         return Response.ok(movies).build();
     }
 
@@ -79,9 +77,9 @@ public class MovieResource {
                              @FormParam("genre") String genre,
                              @FormParam("yearReleased") Integer yearReleased,
                              @FormParam("rating") String rating) {
-        logger.info("name passed in: " + name + ", genre passed in: " + genre);
         MovieEntry mov = new MovieEntry(counter.incrementAndGet(), name, genre, yearReleased, rating);
         Long rtnId = dao.insert(mov.getId(), mov.getName(), mov.getGenre(), mov.getYearReleased(), mov.getRating());
+        logger.info("movie insert returned value: " + rtnId);
         return Response.ok().build();
     }
 
@@ -98,7 +96,7 @@ public class MovieResource {
         if (rtn != null) {
             return Response.ok().build();
         } else {
-            return Response.status(Response.Status.NOT_FOUND).entity("Entity not found for id: " + id).build();
+            return Response.status(Response.Status.NOT_FOUND).entity("Entity not found for id: " + id.get()).build();
         }
     }
 
@@ -106,7 +104,12 @@ public class MovieResource {
     @Path("/{id}")
     @Timed
     public Response deleteMovie(@PathParam("id") Optional<Long> id) {
-        Integer rtn = dao.delete(id.get());
-        return Response.ok().build();
+        Integer rtn = dao.delete(id.get());  // 1=deleted, 0=not found
+        logger.info("movie delete returned value: " + rtn);
+        if (rtn > 0) {
+            return Response.ok().build();
+        } else {
+            return Response.status(Response.Status.NOT_FOUND).entity("Entity not found for id: " + id.get()).build();
+        }
     }
 }
